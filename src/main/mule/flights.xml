@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d9604330-79a6-4436-9544-42a85b3921f2" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="JWT" doc:name="HTTP Request configuration" doc:id="0cac743c-f082-4f49-a7db-7fbd04f853f0" basePath="/jwt" >
+		<http:request-connection host="192.168.0.50" port="9093" maxConnections="2" />
+	</http:request-config>
+	<flow name="flightsFlow1" doc:id="abeccbce-774d-488e-94c9-be76d03ffa85" >
+		<http:listener doc:name="Listener" doc:id="b2befcc6-2ad2-4411-944d-bde943bc5238" config-ref="HTTP_Listener_config" path="/vijay" allowedMethods="GET" outputMimeType="application/json"/>
+		<http:request method="GET" doc:name="Request" doc:id="02106bae-54e3-48f5-88a3-5f2d764e51f1" config-ref="JWT" path="/token">
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="d6702d0a-e742-421c-ad2a-c7ba9163a4f5" message="#[payload]"/>
+	</flow>
+	<flow name="flightsFlow" doc:id="468d08d3-01c6-458e-a94a-650458998139" >
+		<http:listener doc:name="Listener" doc:id="fdf6b09f-43f9-456a-a63e-9742906f07af" config-ref="HTTP_Listener_config" path="/jwt" allowedMethods="POST"/>
+		<http:request method="POST" doc:name="Request" doc:id="0dbb8bbd-947c-449e-996f-dc13f580d496" config-ref="JWT" path="/token" outputMimeType="application/json">
+			<http:body ><![CDATA[#[{
+"token": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzb21lb25lIiwianRpIjoic29tZXN0cmluZyIsImV4cCI6MTU3MTQ0MjQ5Miwic3ViIjoidmlqYXkifQ.8tMV-cBdaqlpY0PWiiMUw53VoxS5jsybrXgBIlB4jr8",
+  "user" : "vijay"	
+	
+}]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="d09673f9-36ec-4862-b8e5-fdca91554678" message="#[payload]"/>
+	</flow>
+</mule>
